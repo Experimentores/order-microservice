@@ -37,7 +37,6 @@ public class Order {
     @Column(name = "payment_amount", nullable = false, length = 50)
     private Double paymentAmount;
 
-    /*@ManyToOne
-    @JoinColumn(name = "id_cart_items", nullable = false)
-    private CartItems cartItems;*/
+ /*   @Transient
+    private CartItem cartItems;*/
 }
