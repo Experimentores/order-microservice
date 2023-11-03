@@ -1,4 +1,4 @@
-package com.edu.pe.Order.Microservice.model;
+package com.edu.pe.ordermicroservice.orders.domain.model;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -17,10 +17,10 @@ import java.time.LocalDate;
 public class Order {
     @Id
     @GeneratedValue (strategy = GenerationType.IDENTITY)
-    private int id;
+    private Long id;
 
     @Column(name = "order_date", nullable = false, length = 50)
-    private LocalDate orderDate;
+    private LocalDate date;
 
     @Column(name = "waiting_time", nullable = false, length = 50)
     private String waitingTime;
@@ -37,6 +37,6 @@ public class Order {
     @Column(name = "payment_amount", nullable = false, length = 50)
     private Double paymentAmount;
 
- /*   @Transient
-    private CartItem cartItems;*/
+    @Column(name = "user_id", nullable = false)
+    private Long userId;
 }
