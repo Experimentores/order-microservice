@@ -204,7 +204,6 @@ public class OrdersController extends CrudController<Order, Long, OrderResource,
 
     @RequestMapping(value = "healthcheck", method = RequestMethod.HEAD)
     ResponseEntity<Void> isOk() {
-        validateShoppingCartClientHealth();
         return ResponseEntity.ok().build();
     }
 }
