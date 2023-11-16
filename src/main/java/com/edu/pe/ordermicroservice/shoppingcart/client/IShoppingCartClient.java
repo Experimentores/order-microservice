@@ -1,5 +1,6 @@
 package com.edu.pe.ordermicroservice.shoppingcart.client;
 
+import com.crudjpa.client.IHealthClient;
 import com.edu.pe.ordermicroservice.shoppingcart.domain.model.ShoppingCart;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.http.ResponseEntity;
@@ -8,7 +9,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 
 @FeignClient(name="${tripstore.shopping-carts-service.name}", path = "${tripstore.shopping-carts-service.path}")
-public interface IShoppingCartClient {
+public interface IShoppingCartClient extends IHealthClient {
     @GetMapping("orders/{id}")
     ResponseEntity<ShoppingCart> getShoppingCartByOrderId(@PathVariable Long id);
 

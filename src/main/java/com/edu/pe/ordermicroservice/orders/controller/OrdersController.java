@@ -136,17 +136,25 @@ public class OrdersController extends CrudController<Order, Long, OrderResource,
     public Optional<ShoppingCart> deleteShoppingCartByOrderId(Long orderId) {
         try {
             ResponseEntity<ShoppingCart> response = shoppingCartClient.deleteShoppingCartByOrderId(orderId);
-            if(response.getStatusCode() == HttpStatus.OK)
+            if(response.getStatusCode() == HttpStatus.OK) {
+                shoppingCartClient.deleteShoppingCartByOrderId(orderId);
                 return Optional.ofNullable(response.getBody());
+            }
         } catch (Exception ignored) {}
 
         return Optional.empty();
     }
 
+    private void validateShoppingCartClientHealth() {
+        validateHealthClient(shoppingCartClient, "ShoppingCart");
+    }
+
     @DeleteMapping(value = "{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<OrderResource> deleteOrderById(@PathVariable Long id) {
-        ResponseEntity<OrderResource> response = delete(id);
+        // before erase, check if related entity service is up
+        validateShoppingCartClientHealth();
 
+        ResponseEntity<OrderResource> response = delete(id);
         if(response.getStatusCode() == HttpStatus.OK)
             deleteShoppingCartByOrderId(id);
 
@@ -155,13 +163,17 @@ public class OrdersController extends CrudController<Order, Long, OrderResource,
 
     @DeleteMapping(value = "users/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<OrderResource>> deleteOrdersByUserId(@PathVariable Long id) {
+        validateShoppingCartClientHealth();
+
         List<Order> deleted = orderService.deleteOrdersByUserId(id);
         if(deleted.isEmpty())
             return ResponseEntity.noContent().build();
 
+
         List<OrderResource> resources = deleted.stream()
                 .map(order -> {
                     OrderResource resource = mapper.fromModelToResource(order);
+
                     Optional<ShoppingCart> shoppingCart = deleteShoppingCartByOrderId(order.getId());
                     shoppingCart.ifPresent(resource::setShoppingCart);
 
@@ -188,5 +200,11 @@ public class OrdersController extends CrudController<Order, Long, OrderResource,
             return ResponseEntity.noContent().build();
 
         return ResponseEntity.ok(resources);
+    }
+
+    @RequestMapping(value = "healthcheck", method = RequestMethod.HEAD)
+    ResponseEntity<Void> isOk() {
+        validateShoppingCartClientHealth();
+        return ResponseEntity.ok().build();
     }
 }
